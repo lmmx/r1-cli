@@ -4,12 +4,20 @@ import argh
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
 
+class NoEOSTextStreamer(TextStreamer):
+    def on_finalized_text(self, text: str, stream_end: bool = False):
+        if stream_end:
+            eos = self.tokenizer.special_tokens_map["eos_token"]
+            text = text.removesuffix(eos)
+        print(text, flush=True, end="" if not stream_end else None)
+
+
 def load_r1():
     model_name = "unsloth/DeepSeek-R1-Distill-Qwen-7B-bnb-4bit"
     logging.getLogger("transformers.utils.quantization_config").setLevel(logging.ERROR)
     model = AutoModelForCausalLM.from_pretrained(model_name, low_cpu_mem_usage=True)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    streamer = TextStreamer(tokenizer, skip_prompt=True)
+    streamer = NoEOSTextStreamer(tokenizer, skip_prompt=True)
     return model, tokenizer, streamer
 
 
