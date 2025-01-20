@@ -14,6 +14,14 @@ uv pip install -e .
 $(uv python find -m compileall .)
 ``` 
 
+You can then symlink your entrypoint at `.venv/bin/r1` to a directory in your path for use as a command without activating the venv,
+
+```sh
+~/opt/bin $ ln -s /home/louis/lab/r1/.venv/bin/r1 r1
+```
+
+or else export it onto your PATH in your bashrc.
+
 ## Usage
 
 Pass prompt messages (which will be given role of user) via CLI, as well as flags such as
