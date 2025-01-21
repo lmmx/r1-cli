@@ -1,7 +1,17 @@
 # r1
 
 Simple app providing a CLI command to run DeepSeek r1 (4 bit quant of the Qwen 32B distilled model,
-via unsloth)
+via unsloth and vLLM)
+
+## Serving
+
+You can serve with
+
+```sh
+vllm serve "unsloth/DeepSeek-R1-Distill-Qwen-1.5B-bnb-4bit" --quantization bitsandbytes --load-format bitsandbytes
+```
+
+(I might package that behind the same CLI too but for now just use this command...)
 
 ## Installation
 
