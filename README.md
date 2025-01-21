@@ -79,7 +79,7 @@ export AIDER_MODEL="hosted_vllm/unsloth/DeepSeek-R1-Distill-Qwen-1.5B-bnb-4bit"
 
 (I might package that behind the same CLI too but for now just use this command...)
 
-## AWQ
+## AWQ (recommended)
 
 Alternatively, use Casper Hansen's AWQ quantised model:
 
@@ -92,3 +92,38 @@ Then just change the model name to
 ```sh
 export AIDER_MODEL="hosted_vllm/casperhansen/deepseek-r1-distill-qwen-1.5b-awq"
 ```
+
+- I also recommend `--gpu-memory-utilization 0.95` to avoid recomputing the KV cache
+
+## GGUF
+
+[nisten](https://x.com/nisten/status/1881419672987541717) (who did a lot of [testing](https://x.com/nisten/status/1874996106540503367)
+on the degradation in benchmark perf on DeepSeek v3) recommends GGUF in `q4_k_I` or `q5_k_I`
+
+> the I type leaves the embedding weight and output weight in 8bit which helps out accuracy at
+> longer contexts
+
+See: [bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF)
+
+## Unquantised
+
+To run the unquantised model:
+
+```sh
+vllm serve "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+```
+
+and
+
+```sh
+export AIDER_MODEL="hosted_vllm/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+```
+
+## Concurrency
+
+- 166 threads is possible with vLLM and the AWQ quantised weights (only 225 maximum threads in Aider bench)
+- Reaches 1300-1800 TPS average generation throughput for an ETA of ~3-5 hours
+
+## Python benchmarking
+
+TBC
