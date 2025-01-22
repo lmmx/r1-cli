@@ -31,4 +31,8 @@ export AIDER_MODEL="hosted_vllm/casperhansen/deepseek-r1-distill-qwen-14b-awq"
    --new --num-tests -1 --languages python
 ```
 
-It doesn't give as much output on token throughput speed as vLLM
+## 14B
+
+Time per token is reported with peaks of roughly 50ms equating to a tokens per second (TPS) of 20
+tokens per second (this is per thread, so multiply that by the number of parallel processes - this
+is not clear).
