@@ -2,6 +2,10 @@
 
 ### bitsandbytes
 
+```sh
+vllm serve "unsloth/DeepSeek-R1-Distill-Qwen-1.5B-bnb-4bit" --quantization bitsandbytes --load-format bitsandbytes
+```
+
 You can then run the [Aider benchmark](https://github.com/Aider-AI/aider/blob/main/benchmark/README.md)
 and will be able to reach it with:
 
