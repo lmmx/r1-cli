@@ -74,5 +74,5 @@ Aider bench, Python subset, 4-bit AWQ on vLLM: https://gist.github.com/lmmx/ab65
 
 Aider bench, Python subset, 4-bit AWQ on TGI
 
-- 14B ⇢ ?% pass rate, ?% well-formed
+- 14B ⇢ 0% pass rate, 55% well-formed
 - 32B ⇢ ?% pass rate, ?% well-formed

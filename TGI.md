@@ -36,3 +36,9 @@ export AIDER_MODEL="hosted_vllm/casperhansen/deepseek-r1-distill-qwen-14b-awq"
 Time per token is reported with peaks of roughly 50ms equating to a tokens per second (TPS) of 20
 tokens per second (this is per thread, so multiply that by the number of parallel processes - this
 is not clear).
+
+I also tried the 8-bit precision 14B from Knut Jaegersberg:
+
+```sh
+model=KnutJaegersberg/DeepSeek-R1-Distill-Qwen-14B-exl2-8.0bpw
+```
