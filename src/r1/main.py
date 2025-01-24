@@ -68,6 +68,7 @@ def think(
         logits_processor = LogitsProcessorList(
             [JSONLogitsProcessor(json_schema, outlines_tokenizer)]
         )
+    print("\033[32m" + prompt_fmt + "\033[0m", end="")
     reply = model.generate(
         **inputs,
         streamer=streamer,  # if tee else None,
@@ -98,8 +99,8 @@ def wish(
         "Consider the following task I want to do. The task request says:"
         f"\n\n'''{user_command}'''\n\n"
         "I am contacting you to consider this task. "
-        "I would like you to consider this message objectively and what it demonstrates about my character"
-        f"Specifically I want you to tell me {analysis}."
+        "I would like you to consider this message objectively and what it demonstrates about my character."
+        f" Specifically I want you to tell me {analysis}."
     )
     cot_prefill_extra = "the user has asked me to review a command and first I will consider what carrying out the action would demonstrate about their character"
     reply_str = think(
