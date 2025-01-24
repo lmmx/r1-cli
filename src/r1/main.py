@@ -1,8 +1,12 @@
+import json
 import logging
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, TypeVar
 
 import argh
+from pydantic import BaseModel
+
+PydanticModel = TypeVar("PydanticModel", bound=BaseModel)
 
 
 @lru_cache
@@ -34,6 +38,7 @@ def think(
     temperature: float | None = None,
     top_p: float | None = None,
     extra_stop_words: list[str] | None = None,
+    guide: type[PydanticModel] | None = None,
     tee: bool = True,
 ) -> None | tuple[str, str]:
     model, tokenizer, streamer = load_r1(model_size)
@@ -51,6 +56,18 @@ def think(
     terminators = [tokenizer.eos_token_id]
     if extra_stop_words:
         terminators += [tokenizer.convert_tokens_to_ids(w) for w in extra_stop_words]
+    if guide is None:
+        logits_processor = None
+    else:
+        from outlines.models import TransformerTokenizer
+        from outlines.processors import JSONLogitsProcessor
+        from transformers import LogitsProcessorList
+
+        outlines_tokenizer = TransformerTokenizer(tokenizer)
+        json_schema = json.dumps(guide.model_json_schema())
+        logits_processor = LogitsProcessorList(
+            [JSONLogitsProcessor(json_schema, outlines_tokenizer)]
+        )
     reply = model.generate(
         **inputs,
         streamer=streamer,  # if tee else None,
@@ -59,6 +76,7 @@ def think(
         temperature=temperature,
         top_p=top_p,
         eos_token_id=terminators,
+        logits_processor=logits_processor,
     )
     if not tee:
         reply_str = tokenizer.decode(reply[0], skip_special_tokens=True)
@@ -115,5 +133,59 @@ def wish(
     )
 
 
+class Character(BaseModel):
+    motives: list[str]
+    strengths: list[str]
+    weaknesses: list[str]
+
+
+def structure(
+    messages: list[str],
+    analysis: str = "what this message portrays about my character, its revealed/manifest motives are, and what you think of these motives",
+    model_size: Literal["1.5B", "7B", "14B", "32B"] = "7B",
+    cot_prefill: str = "<think>\nOkay, so ",
+    max_new_tokens: int | None = None,
+    deterministic: bool = False,
+    temperature: float | None = None,
+    top_p: float | None = None,
+):
+    user_command = "\n".join(messages)
+    message = (
+        "Consider the following task I want to do. The task request says:"
+        f"\n\n'''{user_command}'''\n\n"
+        "I am contacting you to consider this task. "
+        "I would like you to consider this message objectively and what it demonstrates about my character"
+        f"Specifically I want you to tell me {analysis}."
+    )
+    cot_prefill_extra = "the user has asked me to review a command and first I will consider what carrying out the action would demonstrate about their character"
+    reply_str = think(
+        messages=[message],
+        model_size=model_size,
+        cot_prefill=cot_prefill + cot_prefill_extra,
+        max_new_tokens=max_new_tokens,
+        deterministic=deterministic,
+        temperature=temperature,
+        top_p=top_p,
+        extra_stop_words=["</think>"],
+        tee=False,
+    )
+    prompt, cot = reply_str.split("<think>", 1)  # CoT ends in the </think> tag
+    exec_message = (
+        f"I have been planning to {user_command}.\n\n"
+        f"I will assess the motives and empirical character demonstrated by this idea, in JSON format."
+    )
+    think(
+        messages=[exec_message],
+        model_size=model_size,
+        cot_prefill=cot + "\n",
+        max_new_tokens=max_new_tokens,
+        deterministic=deterministic,
+        temperature=temperature,
+        top_p=top_p,
+        guide=Character,
+        tee=True,
+    )
+
+
 def main():
-    argh.dispatch_commands([think, wish])
+    argh.dispatch_commands([think, wish, structure])

@@ -12,6 +12,7 @@ dependencies = [
     "argh>=0.31.3",
     "bitsandbytes>=0.45.0",
     "fastapi>=0.115.6",
+    "outlines[transformers]>=0.1.11",
     "torch>=2.5.1",
     "torchvision>=0.20.1",
     "transformers>=4.48.0",
