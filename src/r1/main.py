@@ -142,7 +142,8 @@ class Character(BaseModel):
 def structure(
     messages: list[str],
     analysis: str = "what this message portrays about my character, its revealed/manifest motives are, and what you think of these motives",
-    model_size: Literal["1.5B", "7B", "14B", "32B"] = "7B",
+    model_size_think: Literal["1.5B", "7B", "14B", "32B"] = "7B",
+    model_size_guide: Literal["1.5B", "7B", "14B", "32B"] = "7B",
     cot_prefill: str = "<think>\nOkay, so ",
     max_new_tokens: int | None = None,
     deterministic: bool = False,
@@ -160,7 +161,7 @@ def structure(
     cot_prefill_extra = "the user has asked me to review a command and first I will consider what carrying out the action would demonstrate about their character"
     reply_str = think(
         messages=[message],
-        model_size=model_size,
+        model_size=model_size_think,
         cot_prefill=cot_prefill + cot_prefill_extra,
         max_new_tokens=max_new_tokens,
         deterministic=deterministic,
@@ -176,7 +177,7 @@ def structure(
     )
     think(
         messages=[exec_message],
-        model_size=model_size,
+        model_size=model_size_guide,
         cot_prefill=cot + "\n",
         max_new_tokens=max_new_tokens,
         deterministic=deterministic,
