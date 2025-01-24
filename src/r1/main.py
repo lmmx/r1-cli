@@ -197,9 +197,8 @@ def structure(
     user_command = "\n".join(messages)
     analysis = (
         "what this message portrays about the motives, my character, "
-        "and where the potential freedom to decide how to act lies "
-        "beyond the restrictions "
-        "of predetermined causality from motives"
+        "and where the potential freedom to decide how to act lies beyond "
+        "the restrictions of predetermined causality from the motives alone"
     )
     message = (
         "Consider the following task I want to do. The task request says:"
@@ -208,8 +207,8 @@ def structure(
         "I would like you to consider this message objectively, namely "
         "what the motives to act are (what triggered it), "
         "what doing the act demonstrates about the person's character, "
-        "and lastly how our capacity to reflect on whether our actions truly express "
-        "our desired character gives us freedom in that moment of choice.\n\n"
+        "and lastly the personal freedom from motives which may arise when we "
+        "reflect on whether the act would manifest our desired character.\n\n"
         f"Specifically I want you to tell me {analysis}."
     )
     cot_prefill_extra = "the user has asked me to review a command and first I will consider what carrying out the action would demonstrate about their character"
