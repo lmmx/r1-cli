@@ -1,9 +1,11 @@
 import logging
+from functools import lru_cache
 from typing import Literal
 
 import argh
 
 
+@lru_cache
 def load_r1(model_size: str):
     from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
@@ -31,6 +33,7 @@ def think(
     deterministic: bool = False,
     temperature: float | None = None,
     top_p: float | None = None,
+    extra_stop_words: list[str] | None = None,
     tee: bool = True,
 ) -> None | tuple[str, str]:
     model, tokenizer, streamer = load_r1(model_size)
@@ -45,6 +48,9 @@ def think(
     inputs = tokenizer(prompt_fmt, return_tensors="pt", add_special_tokens=False).to(
         model.device
     )
+    terminators = [tokenizer.eos_token_id]
+    if extra_stop_words:
+        terminators += [tokenizer.convert_tokens_to_ids(w) for w in extra_stop_words]
     reply = model.generate(
         **inputs,
         streamer=streamer,  # if tee else None,
@@ -52,12 +58,11 @@ def think(
         do_sample=not deterministic,
         temperature=temperature,
         top_p=top_p,
+        eos_token_id=terminators,
     )
     if not tee:
         reply_str = tokenizer.decode(reply[0], skip_special_tokens=True)
-        prompt, think_and_answer = reply_str.split("<think>", 1)
-        cot, answer = think_and_answer.split("</think>", 1)
-        return prompt, cot, answer
+        return reply_str
 
 
 def wish(
@@ -79,7 +84,7 @@ def wish(
         f"Specifically I want you to tell me {analysis}."
     )
     cot_prefill_extra = "the user has asked me to review a command and first I will consider what carrying out the action would demonstrate about their character"
-    prompt, cot, answer = think(
+    reply_str = think(
         messages=[message],
         model_size=model_size,
         cot_prefill=cot_prefill + cot_prefill_extra,
@@ -87,8 +92,10 @@ def wish(
         deterministic=deterministic,
         temperature=temperature,
         top_p=top_p,
+        extra_stop_words=["</think>"],
         tee=False,
     )
+    prompt, cot = reply_str.removesuffix("</think>").split("<think>", 1)
     exec_message = (
         "I have been planning to "
         f"{user_command}"
