@@ -13,7 +13,7 @@ app = FastAPI()
 client = httpx.AsyncClient(timeout=600.0)  # 10 minute timeout
 
 GREEN = "\033[32m"
-RED = "\033[31m"
+YELLOW = "\033[33m"
 RESET = "\033[0m"
 
 
@@ -32,7 +32,13 @@ async def proxy(request: Request, path: str):
     edited_rbody = json.loads(request_body.decode())
     edited_rbody["temperature"] = 0.6
     new_req_body = json.dumps(edited_rbody).encode()
+    # Print it
+    print("The request body:")
+    pp_req_body = json.dumps(json.loads(new_req_body.decode()), indent=2)
+    print(GREEN + pp_req_body + RESET)
+    # Update content length
     headers["content-length"] = str(len(new_req_body))
+    # Send it to the LLM server (either TGI or vLLM)
     response = await client.request(
         method=request.method, url=url, content=new_req_body, headers=headers
     )
@@ -40,11 +46,8 @@ async def proxy(request: Request, path: str):
     # For chat completions, clean <think> tags from response
     if path.endswith("/chat/completions") and response.status_code == 200:
         data = response.json()
-        print("The request body:")
-        pp_req_body = json.dumps(json.loads(new_req_body.decode()), indent=2)
-        print(GREEN + pp_req_body + RESET)
         print("The response:")
-        print(RED + json.dumps(data, indent=2) + RESET)
+        print(YELLOW + json.dumps(data, indent=2) + RESET)
         # if 'choices' in data:
         #     for choice in data['choices']:
         #         if 'message' in choice and 'content' in choice['message']:

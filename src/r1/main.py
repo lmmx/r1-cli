@@ -224,44 +224,6 @@ def structure(
         guide=Character,
         tee=True,
     )
-    # prompt, cot = reply_str.split("<think>", 1)  # CoT ends in the </think> tag
-    # if double_think:
-    #     cot_extender = (
-    #         "\n\nOkay, so I've done a bit of thinking but I was asked to think long and hard"
-    #         ", so I should give this some deeper thought. I have thought about the 3 aspects"
-    #         " Schopenhauer wrote about, but I need to give more attention to this idea "
-    #         "of 'transcendental freedom', which is all about how people can have a sort"
-    #         " of freedom over their actions due to an objective awareness of how "
-    #         "specific actions would be perceived by others as reflecting their character."
-    #         " What does that mean in this situation?"
-    #     )
-    #     reply_str = think(
-    #         messages=[message],
-    #         model_size=model_size_think,
-    #         cot_prefill=cot.removesuffix("</think>") + cot_extender,
-    #         max_new_tokens=max_new_tokens,
-    #         deterministic=deterministic,
-    #         temperature=temperature,
-    #         top_p=top_p,
-    #         # extra_stop_words=["</think>"],
-    #         tee=False,
-    #     )
-    # message += (
-    #     f"I have been planning to {user_command}.\n\n"
-    #     "I will assess the motives (triggers/drivers) and empirical character demonstrated by this idea as "
-    #     "well as what Schopenhauer called transcendental freedom, in JSON format"
-    # )
-    # think(
-    #     messages=[exec_message],
-    #     model_size=model_size_guide,
-    #     cot_prefill=cot + "\n",
-    #     max_new_tokens=max_new_tokens,
-    #     deterministic=deterministic,
-    #     temperature=temperature,
-    #     top_p=top_p,
-    #     guide=Character,
-    #     tee=True,
-    # )
 
 
 def main():
