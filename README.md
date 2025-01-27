@@ -76,3 +76,24 @@ Aider bench, Python subset, 4-bit AWQ on TGI
 
 - 14B ⇢ 0% pass rate, 55% well-formed
 - 32B ⇢ ?% pass rate, ?% well-formed
+
+## Structured responses
+
+This repo also contains two entrypoints `silencio` and `vllmsilencio` which demonstrate use of
+logits processors:
+
+- `src/r1/silent_thought.py` shows use with Transformers, post-processing the generation result
+- `src/r1/silent_thought_streamer.py` shows use with Transformers, modifying the `TextStreamer`
+  output - this is exposed via the `silencio` entrypoint with argh
+- `src/r1/silent_thought_vllm.py` shows use with vLLM, post-processing the generation result - this
+  is exposed via the `vllmsilencio` entrypoint with argh
+
+Since vLLM is async, you're more likely to be using it for the entire result, but if you wanted to
+stream results then a similar approach taken with the transformers `TextStreamer` would work.
+
+Each of these works by switching to structured JSON output using the Outlines `JSONLogitsProcessor`.
+Note that the Pydantic model used to guide this JSON will **not** include a field for the
+"reasoning" key that the CoT gets put into! It would be a simple extension to take the code as is
+and modify it to accept a key that must exist in the guide Pydantic model to use to house the CoT
+(the JSON schema could be modifed to hardcode the field as constr of length 0 or a constant of type
+`typing.Literal[""]`).
