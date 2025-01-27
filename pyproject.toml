@@ -21,7 +21,7 @@ dependencies = [
 
 [project.scripts]
 r1 = "r1:main"
-silencio = "r1:silent_thought.main"
+silencio = "r1:silent_thought_streamer.main"
 
 [build-system]
 requires = ["hatchling"]
