@@ -41,21 +41,23 @@ def load_r1(model_size: str, guide: type[PydanticModel], cot_prefill: str):
                 text = self.init_json + text
                 self.init_json = ""
             print(text, flush=True, end="" if not stream_end else None)
+            self.logits_processor.result += text
 
     model_name = f"unsloth/DeepSeek-R1-Distill-Qwen-{model_size}-bnb-4bit"
     logging.getLogger("transformers.utils.quantization_config").setLevel(logging.ERROR)
     model = AutoModelForCausalLM.from_pretrained(model_name, low_cpu_mem_usage=True)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    logits_processor = load_logits_processor(
+    logits_processors = load_logits_processors(
         tokenizer=tokenizer, guide=guide, cot_prefill=cot_prefill
     )
+    trigger_lp = logits_processors[0]
     streamer = NoEOSTextStreamer(
-        tokenizer, logits_processor=logits_processor[0], skip_prompt=True
+        tokenizer, logits_processor=trigger_lp, skip_prompt=True
     )
-    return model, tokenizer, streamer, logits_processor
+    return model, tokenizer, streamer, logits_processors
 
 
-def load_logits_processor(
+def load_logits_processors(
     tokenizer: AutoTokenizer, guide: type[PydanticModel], cot_prefill: str
 ) -> LogitsProcessorList:
     import torch
@@ -72,6 +74,7 @@ def load_logits_processor(
             self.trigger_tok = tokenizer.encode(eot, add_special_tokens=False)[0].item()
             self.guide = guide
             self.history = []
+            self.result = ""
             self.triggered_at = -1
             self.triggered = False
 
@@ -102,8 +105,8 @@ def load_logits_processor(
     conditional_guide_processor = TriggerBasedLogitsProcessor(
         tokenizer=outlines_tokenizer, base_processor=guided_processor, guide=guide
     )
-    logits_processor = LogitsProcessorList([conditional_guide_processor])
-    return logits_processor
+    logits_processors = LogitsProcessorList([conditional_guide_processor])
+    return logits_processors
 
 
 def think(
@@ -119,7 +122,7 @@ def think(
     extra_stop_words: list[str] | None = None,
     tee: bool = True,
 ) -> None | tuple[str, str]:
-    model, tokenizer, streamer, logits_processor = load_r1(
+    model, tokenizer, streamer, logits_processors = load_r1(
         model_size, guide=guide, cot_prefill=cot_prefill
     )
     msg_list = [{"role": "user", "content": msg} for msg in messages]
@@ -145,14 +148,15 @@ def think(
         temperature=temperature,
         top_p=top_p,
         eos_token_id=terminators,
-        logits_processor=logits_processor,
+        logits_processor=logits_processors,
     )
-    cot_end_idx = logits_processor[0].triggered_at
-    no_cot = tokenizer.decode(reply[0][cot_end_idx:], skip_special_tokens=True)
-    cot = cot_prefill + tokenizer.decode(reply[0][len(inputs[0]) : cot_end_idx])
-    if not tee:
-        reply_str = tokenizer.decode(reply[0], skip_special_tokens=True)
-        return reply_str
+    # cot_end_idx = trigger_lp.triggered_at
+    # no_cot = tokenizer.decode(reply[0][cot_end_idx:], skip_special_tokens=True)
+    # cot = cot_prefill + tokenizer.decode(reply[0][len(inputs[0]) : cot_end_idx])
+    # real_generation = tokenizer.decode(reply[0], skip_special_tokens=True)
+    trigger_lp = logits_processors[0]
+    json_generation = trigger_lp.result
+    return json_generation
 
 
 class TextAnswer(BaseModel):
@@ -181,6 +185,7 @@ def silencio(
     temperature: float | None = None,
     double_think: bool = True,
     top_p: float | None = None,
+    return_result: bool = False,
 ):
     message = (
         "Consider the following question which I want you to answer:"
@@ -196,7 +201,8 @@ def silencio(
         "int": NumericAnswer,
         "str": TextAnswer,
     }[answer_type]
-    think(
+    # String result of the text that was streamed
+    result = think(
         messages=[message],
         guide=model_type,
         model_size=model_size,
@@ -207,6 +213,8 @@ def silencio(
         top_p=top_p,
         tee=True,
     )
+    if return_result:
+        return result
 
 
 def main():
