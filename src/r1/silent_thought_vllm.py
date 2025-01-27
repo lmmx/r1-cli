@@ -28,7 +28,6 @@ class TriggerBasedLogitsProcessor:
         self.in_cot = False
         self.history = []
         self.cot = ""
-        self.generated_cot = ""
 
     def __call__(
         self, prompt: tuple[int], generated_tokens: tuple[int], logits: torch.Tensor
