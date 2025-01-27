@@ -177,18 +177,18 @@ def think(
 
 
 class TextAnswer(BaseModel):
-    reasoning: list[str]
     answer: str
+    reasoning: str
 
 
 class NumericAnswer(BaseModel):
-    reasoning: list[str]
     answer: int
+    reasoning: str
 
 
 class DecimalAnswer(BaseModel):
-    reasoning: list[str]
     answer: float
+    reasoning: str
 
 
 def silencio(
