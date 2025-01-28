@@ -41,6 +41,8 @@ class TriggerBasedLogitsProcessor:
                 ).lstrip()
         if len(generated_tokens) > 0:
             last_id = generated_tokens[-1]
+            if not self.in_cot:
+                self.in_cot = self.bot_id == last_id
             if self.in_cot:
                 is_eot = last_id == self.eot_id
                 if is_eot:
