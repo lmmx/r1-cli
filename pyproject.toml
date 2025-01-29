@@ -23,6 +23,7 @@ dependencies = [
 r1 = "r1:main"
 silencio = "r1:silent_thought_streamer.main"
 silencio_vllm = "r1:silent_thought_vllm.main"
+silencio_multi = "r1:silent_thought_streamer_with_retries.main"
 
 [build-system]
 requires = ["hatchling"]
