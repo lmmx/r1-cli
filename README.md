@@ -45,6 +45,12 @@ options:
   --top-p [TOP_P]       -
 ```
 
+## Model Caching with `hftorchcache`
+
+This project integrates `hftorchcache` to optimise Hugging Face model loading,
+improving initialisation speed by reusing pre-converted PyTorch serialised checkpoints.
+This is roughly 10x faster.
+
 ## Serving
 
 You can serve with
