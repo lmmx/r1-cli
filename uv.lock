@@ -617,6 +617,21 @@ wheels = [
 ]
 
 [[package]]
+name = "hftorchcache"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "accelerate" },
+    { name = "platformdirs" },
+    { name = "torch" },
+    { name = "transformers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7d/b5/b0e8f1f7cb80033b749abedc7317910f1b17d0a59b24d019e183afde68f5/hftorchcache-0.0.1.tar.gz", hash = "sha256:2d840e22485d7e62d9eeaed23d92721b08eeeea50cdaa3611c0a78ed9910c12a", size = 8079 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/dd/70c93536f2b840cf5a6c44fadcee1b8374e416adfc5a6b04b9e0486e3580/hftorchcache-0.0.1-py3-none-any.whl", hash = "sha256:05fdeae2064925e7c2d46a1ece414678e56c25e8acaea585d4dafbd33ef4b627", size = 8912 },
+]
+
+[[package]]
 name = "httpcore"
 version = "1.0.7"
 source = { registry = "https://pypi.org/simple" }
@@ -1721,6 +1736,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pysnooper"
+version = "1.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/2f/1cec82aaff770c953717cbbdad26d30504689f4d492332dd816296fd9029/PySnooper-1.2.1.tar.gz", hash = "sha256:d832ddf26c80440a9456b3a664daff957f737e7313c40b76250ebdb5ccdb6a31", size = 46212 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/04/8f4be140e8d919c283ddfc2ba956dc5caea75fdbfbc8493117a269a562a4/PySnooper-1.2.1-py2.py3-none-any.whl", hash = "sha256:7717ac193e27a0f9c5673015812386ee7828ad205f705045b2e019f4800b42a0", size = 15098 },
+]
+
+[[package]]
 name = "pytest"
 version = "8.3.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1844,7 +1868,9 @@ dependencies = [
     { name = "argh" },
     { name = "bitsandbytes" },
     { name = "fastapi" },
+    { name = "hftorchcache" },
     { name = "outlines", extra = ["transformers"] },
+    { name = "pysnooper" },
     { name = "torch" },
     { name = "torchvision" },
     { name = "transformers" },
@@ -1857,7 +1883,9 @@ requires-dist = [
     { name = "argh", specifier = ">=0.31.3" },
     { name = "bitsandbytes", specifier = ">=0.45.0" },
     { name = "fastapi", specifier = ">=0.115.6" },
+    { name = "hftorchcache", specifier = ">=0.0.1" },
     { name = "outlines", extras = ["transformers"], specifier = ">=0.1.11" },
+    { name = "pysnooper", specifier = ">=1.2.1" },
     { name = "torch", specifier = ">=2.5.1" },
     { name = "torchvision", specifier = ">=0.20.1" },
     { name = "transformers", specifier = ">=4.48.0" },

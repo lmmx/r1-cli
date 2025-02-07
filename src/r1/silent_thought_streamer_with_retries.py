@@ -2,18 +2,23 @@ from __future__ import annotations
 
 import json
 import logging
+import pickle
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal, TypeVar
 
 import argh
 from pydantic import BaseModel, create_model
+from pysnooper import snoop
 
 PydanticModel = TypeVar("PydanticModel", bound=BaseModel)
 
 bot, eot = "<think>", "</think>"
 
 
+@snoop()
 def load_r1(model_size: str, guide: type[PydanticModel], cot_prefill: str):
+    import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
     class NoEOSTextStreamer(TextStreamer):
@@ -45,8 +50,17 @@ def load_r1(model_size: str, guide: type[PydanticModel], cot_prefill: str):
 
     model_name = f"unsloth/DeepSeek-R1-Distill-Qwen-{model_size}-bnb-4bit"
     logging.getLogger("transformers.utils.quantization_config").setLevel(logging.ERROR)
-    model = AutoModelForCausalLM.from_pretrained(model_name, low_cpu_mem_usage=True)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    # stored = Path(__file__).parent / f"{model_name.replace('/', '--')}.pt"
+    # if stored.exists():
+    #     model, tokenizer = torch.load(stored, map_location="cuda", weights_only=False)
+    # else:
+    #     model = AutoModelForCausalLM.from_pretrained(model_name, low_cpu_mem_usage=True)
+    #     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    #     torch.save((model, tokenizer), stored)
+    # print(model.device)
+    model, tokenizer = cache.load(model_name, model_cls="AutoModelForCausalLM")
+
     logits_processors = load_logits_processors(
         tokenizer=tokenizer, guide=guide, cot_prefill=cot_prefill
     )
@@ -109,6 +123,7 @@ def load_logits_processors(
     return logits_processors
 
 
+@snoop()
 def think(
     messages: list[str],
     guide: type[PydanticModel],
